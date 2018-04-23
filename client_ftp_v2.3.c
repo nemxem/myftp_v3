@@ -71,9 +71,6 @@ struct myftp_message_data {
     char data[DATA_SIZE];
 };
 
-int s;                                  // socket
-struct sockaddr_in serverAddr;          // server
-
 struct command_table {
     char *cmd;
     void(*func)(int, char *[]);
@@ -157,6 +154,7 @@ void put_func(int ac, char *av[]) {
      struct myftp_message_data message_data;
      int fd;
      int n;
+     int s;
      char buf[DATA_SIZE];
 
      if ((fd = open(av[1], O_RDONLY)) < 0) {
@@ -203,6 +201,7 @@ void get_func(int ac, char *av[]) {
      struct myftp_message message;
      struct myftp_message_data message_data;
      int fd;
+     int s;
      char *fname;
 
      if (ac == 2) fname = av[1];
