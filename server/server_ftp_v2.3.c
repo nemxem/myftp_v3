@@ -71,6 +71,7 @@ struct myftp_message_data {
     char data[DATA_SIZE];
 };
 
+// グローバル関数使うのやめようぜ（コードを追いにくいので）
 int s;                                  // socket
 int wait_s;                     // wait socket
 struct sockaddr_in serverAddr;          // server

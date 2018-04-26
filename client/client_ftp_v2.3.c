@@ -88,6 +88,8 @@ struct command_table cmd_tbl[] = {
 
 #define AV_NUM 4    // end of av is NULL
 
+// ↓ナニコレ 関数の宣言だけされて定義がされてないように見える
+// これがエラーの原因化は分からないけど何が起きるか分からずめっちゃ不穏
 void init(char *);
 int getargs(char *, int *, char *[]);
 
