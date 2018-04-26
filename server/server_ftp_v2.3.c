@@ -37,7 +37,7 @@
 #define OK_NO_DATA (uint8_t)0x00
 #define OK_DATA_S_C (uint8_t)0x01
 #define OK_DATA_C_S (uint8_t)0x02
- 
+
 // CMD_ERR code
 #define CMD_ERR_SYN_ERR (uint8_t)0x01
 #define CMD_ERR_UND_CMD (uint8_t)0x02
@@ -46,7 +46,7 @@
 // FILE_ERR code
 #define FILE_ERR_NO_EXI (uint8_t)0x00
 #define FILE_ERR_NO_AUT (uint8_t)0x01
- 
+
 // UNKWN_ERR code
 #define UNKWN_ERR_UNKWN_ERR (uint8_t)0x05
 
@@ -152,7 +152,7 @@ void init() {
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     serverAddr.sin_port = htons(50904);  // 50021
-        sktlen = sizeof(clientAddr);
+    sktlen = sizeof(clientAddr);
 
     if ((wait_s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("socket");
@@ -189,7 +189,7 @@ void child_process() {
             print_client(&clientAddr);
             print_message_data(&message_data);
             set_message(&message, TYPE_CMD_ERR, CMD_ERR_UND_CMD);
-    send_message(&message, s);
+            send_message(&message, s);
         }
     }
 }
@@ -363,12 +363,12 @@ void print_message(struct myftp_message *message) {
     }
     if (t->value == -1) fprintf(stderr, "TYPE: %s (%d)\n", t->name, message->type);
     switch (message->type) {
-    case TYPE_OK:        t = ok_tbl;        break;
-    case TYPE_CMD_ERR:   t = cmd_err_tbl;   break;
-    case TYPE_FILE_ERR:  t = file_err_tbl;  break;
-    case TYPE_UNKWN_ERR: t = unkwn_err_tbl; break;
-    case TYPE_DATA:      t = data_tbl;      break;
-    default:             t = NULL;          break;
+        case TYPE_OK:        t = ok_tbl;        break;
+        case TYPE_CMD_ERR:   t = cmd_err_tbl;   break;
+        case TYPE_FILE_ERR:  t = file_err_tbl;  break;
+        case TYPE_UNKWN_ERR: t = unkwn_err_tbl; break;
+        case TYPE_DATA:      t = data_tbl;      break;
+        default:             t = NULL;          break;
     }
 
     if (t != NULL) {
@@ -377,7 +377,7 @@ void print_message(struct myftp_message *message) {
                 fprintf(stderr, "CODE: %s\n", t->name);
                 break;
             }
-      }
+        }
         if (t->value == -1) fprintf(stderr, "CODE: %s (0x%02x)\n", t->name, message->code);
     }
     else {
@@ -404,12 +404,12 @@ void print_message_data(struct myftp_message_data *message_data) {
     if (t->value == -1) fprintf(stderr, "TYPE: %s (%d)\n", t->name, message_data->type);
 
     switch (message_data->type) {
-    case TYPE_OK:        t = ok_tbl;        break;
-    case TYPE_CMD_ERR:   t = cmd_err_tbl;   break;
-    case TYPE_FILE_ERR:  t = file_err_tbl;  break;
-    case TYPE_UNKWN_ERR: t = unkwn_err_tbl; break;
-    case TYPE_DATA:      t = data_tbl;      break;
-    default:             t = NULL;          break;
+        case TYPE_OK:        t = ok_tbl;        break;
+        case TYPE_CMD_ERR:   t = cmd_err_tbl;   break;
+        case TYPE_FILE_ERR:  t = file_err_tbl;  break;
+        case TYPE_UNKWN_ERR: t = unkwn_err_tbl; break;
+        case TYPE_DATA:      t = data_tbl;      break;
+        default:             t = NULL;          break;
     }
 
     if (t != NULL) {
@@ -444,9 +444,9 @@ int print_error(struct myftp_message *message) {
     if (t->value == -1) return 0;
 
     switch (message->type) {
-    case TYPE_CMD_ERR:   c = cmd_err_tbl;   break;
-    case TYPE_FILE_ERR:  c = file_err_tbl;  break;
-    case TYPE_UNKWN_ERR: c = unkwn_err_tbl; break;
+        case TYPE_CMD_ERR:   c = cmd_err_tbl;   break;
+        case TYPE_FILE_ERR:  c = file_err_tbl;  break;
+        case TYPE_UNKWN_ERR: c = unkwn_err_tbl; break;
     }
 
     for (; c->value != -1; c++) {

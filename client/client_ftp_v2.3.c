@@ -37,7 +37,7 @@
 #define OK_NO_DATA (uint8_t)0x00
 #define OK_DATA_S_C (uint8_t)0x01
 #define OK_DATA_C_S (uint8_t)0x02
- 
+
 // CMD_ERR code
 #define CMD_ERR_SYN_ERR (uint8_t)0x01
 #define CMD_ERR_UND_CMD (uint8_t)0x02
@@ -46,7 +46,7 @@
 // FILE_ERR code
 #define FILE_ERR_NO_EXI (uint8_t)0x00
 #define FILE_ERR_NO_AUT (uint8_t)0x01
- 
+
 // UNKWN_ERR code
 #define UNKWN_ERR_UNKWN_ERR (uint8_t)0x05
 
@@ -120,8 +120,8 @@ int main(int argc, char *argv[]) {
         printf("myFTP%% ");
         if (fgets(lbuf, sizeof(lbuf), stdin) == NULL) {
             if (ferror(stdin)) {
-               fprintf(stderr, "input error\n");
-               exit(1);
+                fprintf(stderr, "input error\n");
+                exit(1);
             }
         }
 
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
         struct command_table *p;
         for (p = cmd_tbl; p->cmd; p++) {
             if (strcmp(av[0], p->cmd) == 0) {
-                 (*p->func)(ac, av);
+                (*p->func)(ac, av);
                 break;
             }
         }
@@ -145,45 +145,45 @@ int main(int argc, char *argv[]) {
 }
 
 void put_func(int ac, char *av[]) {
-     if (ac < 2 || 3 < ac) {
-         fprintf(stderr, "unknown format");
-         exit(1);
-     }
+    if (ac < 2 || 3 < ac) {
+        fprintf(stderr, "unknown format");
+        exit(1);
+    }
 
-     struct myftp_message message;
-     struct myftp_message_data message_data;
-     int fd;
-     int n;
-     int s;
-     char buf[DATA_SIZE];
+    struct myftp_message message;
+    struct myftp_message_data message_data;
+    int fd;
+    int n;
+    int s;
+    char buf[DATA_SIZE];
 
-     if ((fd = open(av[1], O_RDONLY)) < 0) {
-         perror("open");
-         return;
-     }
+    if ((fd = open(av[1], O_RDONLY)) < 0) {
+        perror("open");
+        return;
+    }
 
-     if (ac == 2) set_message_data(&message_data, TYPE_STOR, 0, strlen(av[1]), av[1]);
-     else         set_message_data(&message_data, TYPE_STOR, 0, strlen(av[2]), av[2]);
+    if (ac == 2) set_message_data(&message_data, TYPE_STOR, 0, strlen(av[1]), av[1]);
+    else         set_message_data(&message_data, TYPE_STOR, 0, strlen(av[2]), av[2]);
 
-     send_message_data(&message_data, s);
-     recv_message(&message, s);
+    send_message_data(&message_data, s);
+    recv_message(&message, s);
 
-     if (check_message(&message, TYPE_OK, OK_DATA_C_S)){ 
-         if (print_error(&message)) return;
+    if (check_message(&message, TYPE_OK, OK_DATA_C_S)){ 
+        if (print_error(&message)) return;
 
-         print_message(&message);
-         return;
-     }
+        print_message(&message);
+        return;
+    }
 
-     for (;;) {
-         memset(buf, '\0', sizeof(buf));
-         if ((n = read(fd, buf, DATA_SIZE)) < 0) break;
+    for (;;) {
+        memset(buf, '\0', sizeof(buf));
+        if ((n = read(fd, buf, DATA_SIZE)) < 0) break;
 
-         if (n < DATA_SIZE) break;
+        if (n < DATA_SIZE) break;
 
-         set_message_data(&message_data, TYPE_DATA, DATA_CON, n, buf);
-         send_message_data(&message_data, s);
-     }
+        set_message_data(&message_data, TYPE_DATA, DATA_CON, n, buf);
+        send_message_data(&message_data, s);
+    }
     if(n <= 0){
         n = 1;
         set_message_data(&message_data, TYPE_DATA, DATA_END, n ,buf);
@@ -193,75 +193,75 @@ void put_func(int ac, char *av[]) {
 }
 
 void get_func(int ac, char *av[]) {
-     if (ac < 2 || 3 < ac) {
-         fprintf(stderr, "unknown format\n");
-         return;
-     }
+    if (ac < 2 || 3 < ac) {
+        fprintf(stderr, "unknown format\n");
+        return;
+    }
 
-     struct myftp_message message;
-     struct myftp_message_data message_data;
-     int fd;
-     int s;
-     char *fname;
+    struct myftp_message message;
+    struct myftp_message_data message_data;
+    int fd;
+    int s;
+    char *fname;
 
-     if (ac == 2) fname = av[1];
-     else         fname = av[2];
+    if (ac == 2) fname = av[1];
+    else         fname = av[2];
 
-     set_message_data(&message_data, TYPE_RETR, 0, strlen(av[1]), av[1]);
-     send_message_data(&message_data, s);
-     recv_message(&message, s);
+    set_message_data(&message_data, TYPE_RETR, 0, strlen(av[1]), av[1]);
+    send_message_data(&message_data, s);
+    recv_message(&message, s);
 
-     if (check_message(&message, TYPE_OK, OK_DATA_S_C)) {
-         if (print_error(&message)) return;
+    if (check_message(&message, TYPE_OK, OK_DATA_S_C)) {
+        if (print_error(&message)) return;
 
-         print_message(&message);
-                return;
-     }
+        print_message(&message);
+        return;
+    }
 
-     if ((fd = open(fname, O_WRONLY | O_CREAT | O_EXCL, 0644)) < 0) {
-         if (errno != EEXIST) {
-             perror("open");
+    if ((fd = open(fname, O_WRONLY | O_CREAT | O_EXCL, 0644)) < 0) {
+        if (errno != EEXIST) {
+            perror("open");
 
-             for (;;) {
-                 recv_message_data(&message_data, s);
-                 if (!check_message_data(&message_data, TYPE_DATA, DATA_END)) break;
-             }
+            for (;;) {
+                recv_message_data(&message_data, s);
+                if (!check_message_data(&message_data, TYPE_DATA, DATA_END)) break;
+            }
 
-             return;
-         }
+            return;
+        }
 
-         if ((fd = open(fname, O_WRONLY | O_CREAT | O_TRUNC, 0644)) < 0) {
-             perror("open");
+        if ((fd = open(fname, O_WRONLY | O_CREAT | O_TRUNC, 0644)) < 0) {
+            perror("open");
 
-             for (;;) {
-                 recv_message_data(&message_data, s);
-                 if (!check_message_data(&message_data, TYPE_DATA, DATA_END)) break;
-             }
+            for (;;) {
+                recv_message_data(&message_data, s);
+                if (!check_message_data(&message_data, TYPE_DATA, DATA_END)) break;
+            }
 
-             return;
-         }
-     }
+            return;
+        }
+    }
 
-     for (;;) {
-         if (recv(s, &message_data, MESSAGE_DATA_SIZE, MSG_WAITALL) < 0) {
-             perror("recv");
-             exit(1);
-         }
+    for (;;) {
+        if (recv(s, &message_data, MESSAGE_DATA_SIZE, MSG_WAITALL) < 0) {
+            perror("recv");
+            exit(1);
+        }
 
-         if (check_message_data(&message_data, TYPE_DATA, DATA_CON)) break;
+        if (check_message_data(&message_data, TYPE_DATA, DATA_CON)) break;
 
-         write(fd, message_data.data, message_data.length);
-     }
+        write(fd, message_data.data, message_data.length);
+    }
 
-     if (check_message_data(&message_data, TYPE_DATA, DATA_END)) {
-         print_message_data(&message_data);
-         close(fd);
-         return;
-     }
+    if (check_message_data(&message_data, TYPE_DATA, DATA_END)) {
+        print_message_data(&message_data);
+        close(fd);
+        return;
+    }
 
-     write(fd, message_data.data, message_data.length);
-     close(fd);
- }
+    write(fd, message_data.data, message_data.length);
+    close(fd);
+}
 
 
 struct format_table {  
@@ -325,12 +325,12 @@ void print_message(struct myftp_message *message) {
     }
     if (t->value == -1) fprintf(stderr, "TYPE: %s (%d)\n", t->name, message->type);
     switch (message->type) {
-    case TYPE_OK:        t = ok_tbl;        break;
-    case TYPE_CMD_ERR:   t = cmd_err_tbl;   break;
-    case TYPE_FILE_ERR:  t = file_err_tbl;  break;
-    case TYPE_UNKWN_ERR: t = unkwn_err_tbl; break;
-    case TYPE_DATA:      t = data_tbl;      break;
-    default:             t = NULL;          break;
+        case TYPE_OK:        t = ok_tbl;        break;
+        case TYPE_CMD_ERR:   t = cmd_err_tbl;   break;
+        case TYPE_FILE_ERR:  t = file_err_tbl;  break;
+        case TYPE_UNKWN_ERR: t = unkwn_err_tbl; break;
+        case TYPE_DATA:      t = data_tbl;      break;
+        default:             t = NULL;          break;
     }
 
     if (t != NULL) {
@@ -339,7 +339,7 @@ void print_message(struct myftp_message *message) {
                 fprintf(stderr, "CODE: %s\n", t->name);
                 break;
             }
-      }
+        }
         if (t->value == -1) fprintf(stderr, "CODE: %s (0x%02x)\n", t->name, message->code);
     }
     else {
@@ -366,12 +366,12 @@ void print_message_data(struct myftp_message_data *message_data) {
     if (t->value == -1) fprintf(stderr, "TYPE: %s (%d)\n", t->name, message_data->type);
 
     switch (message_data->type) {
-    case TYPE_OK:        t = ok_tbl;        break;
-    case TYPE_CMD_ERR:   t = cmd_err_tbl;   break;
-    case TYPE_FILE_ERR:  t = file_err_tbl;  break;
-    case TYPE_UNKWN_ERR: t = unkwn_err_tbl; break;
-    case TYPE_DATA:      t = data_tbl;      break;
-    default:             t = NULL;          break;
+        case TYPE_OK:        t = ok_tbl;        break;
+        case TYPE_CMD_ERR:   t = cmd_err_tbl;   break;
+        case TYPE_FILE_ERR:  t = file_err_tbl;  break;
+        case TYPE_UNKWN_ERR: t = unkwn_err_tbl; break;
+        case TYPE_DATA:      t = data_tbl;      break;
+        default:             t = NULL;          break;
     }
 
     if (t != NULL) {
@@ -406,9 +406,9 @@ int print_error(struct myftp_message *message) {
     if (t->value == -1) return 0;
 
     switch (message->type) {
-    case TYPE_CMD_ERR:   c = cmd_err_tbl;   break;
-    case TYPE_FILE_ERR:  c = file_err_tbl;  break;
-    case TYPE_UNKWN_ERR: c = unkwn_err_tbl; break;
+        case TYPE_CMD_ERR:   c = cmd_err_tbl;   break;
+        case TYPE_FILE_ERR:  c = file_err_tbl;  break;
+        case TYPE_UNKWN_ERR: c = unkwn_err_tbl; break;
     }
 
     for (; c->value != -1; c++) {
